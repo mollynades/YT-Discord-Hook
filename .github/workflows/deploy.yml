@@ -10,10 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@main
 
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@main
         with:
           python-version: "3.x"
 
@@ -31,7 +31,7 @@ jobs:
 
       - name: Save last_notified.json
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@main
         with:
           name: last_notified
           path: last_notified.json
