@@ -23,13 +23,13 @@ jobs:
           pip install -r requirements.txt
       - name: Restore last_notified.json
         id: restore-last-notified
-        run: |
-          echo "Restoring last_notified.json"
-          if [ -f last_notified.json ]; then
-            echo "last_notified.json exists"
-          else
-            echo "last_notified.json does not exist"
-          fi
+        # run: |
+        #   echo "Restoring last_notified.json"
+        #   if [ -f last_notified.json ]; then
+        #     echo "last_notified.json exists"
+        #   else
+        #     echo "last_notified.json does not exist"
+        #   fi
         uses: actions/download-artifact@main
         with:
           name: last_notified
