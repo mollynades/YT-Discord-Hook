@@ -1,4 +1,4 @@
-name: YouTube Channel Notifications (Production)
+name: YouTube Channel Notifications
 
 on:
   schedule:
@@ -22,9 +22,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run production script
+      - name: Run script
         env:
-          YOUTUBE_API_KEY: ${{ secrets.PROD_YOUTUBE_API_KEY }}
-          CHANNEL_ID: ${{ secrets.PROD_CHANNEL_ID }}
-          DISCORD_WEBHOOK: ${{ secrets.PROD_DISCORD_WEBHOOK_URL }}
-        run: python src/production_script.py
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+          CHANNEL_ID: ${{ secrets.CHANNEL_ID }}
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: python src/script.py
