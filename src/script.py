@@ -16,14 +16,18 @@ def send_discord_notification(message):
 def load_last_notified():
     try:
         with open('last_notified.json', 'r') as f:
-            return json.load(f)
+            data = json.load(f)
+            print("Loaded last_notified.json:", data)
+            return data
     except FileNotFoundError:
+        print("last_notified.json not found, initializing with default values.")
         return {"video": None, "livestream": None}
 
 # Function to save last notified data
 def save_last_notified(data):
     with open('last_notified.json', 'w') as f:
         json.dump(data, f)
+        print("Saved last_notified.json:", data)
 
 # Function to check if a video is public and not a Short
 def is_public_full_video(video_id):
@@ -53,6 +57,8 @@ def check_new_videos(last_notified):
     )
     response = request.execute()
 
+    print("Response for new videos:", response)
+
     if 'items' in response:
         for video in response['items']:
             video_id = video['id']['videoId']
@@ -63,6 +69,7 @@ def check_new_videos(last_notified):
                 if video_id != last_notified['video']:
                     send_discord_notification(f"@everyone cekidot video baru ges :fire:\n\n{video_title}\n{video_url}")
                     last_notified['video'] = video_id
+                    print(f"Updated last_notified for video: {last_notified}")
                     return True
                 return False  # We found the latest public non-Short video, but it was already notified
     return False
@@ -78,6 +85,8 @@ def check_live_streams(last_notified):
     )
     response = request.execute()
 
+    print("Response for live streams:", response)
+
     if 'items' in response and response['items']:
         stream = response['items'][0]
         stream_id = stream['id']['videoId']
@@ -88,12 +97,15 @@ def check_live_streams(last_notified):
             if stream_id != last_notified['livestream']:
                 send_discord_notification(f"@everyone nonton live ges yak :v\n\n{stream_title}\n{stream_url}")
                 last_notified['livestream'] = stream_id
+                print(f"Updated last_notified for livestream: {last_notified}")
                 return True
     return False
 
 if __name__ == "__main__":
     last_notified = load_last_notified()
+    print("Loaded last_notified:", last_notified)
     video_updated = check_new_videos(last_notified)
     livestream_updated = check_live_streams(last_notified)
     if video_updated or livestream_updated:
         save_last_notified(last_notified)
+        print("Saved last_notified:", last_notified)

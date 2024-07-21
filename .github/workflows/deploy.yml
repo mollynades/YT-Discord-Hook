@@ -1,4 +1,4 @@
-name: YouTube Channel Notifications
+name: YouTube Discord Notify
 
 on:
   schedule:
@@ -6,7 +6,7 @@ on:
   workflow_dispatch: # Allows manual triggering
 
 jobs:
-  check_youtube:
+  notify:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -21,14 +21,25 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-
+      - name: Restore last_notified.json
+        id: restore-last-notified
+        run: |
+          echo "Restoring last_notified.json"
+          if [ -f last_notified.json ]; then
+            echo "last_notified.json exists"
+          else
+            echo "last_notified.json does not exist"
+          fi
+        uses: actions/download-artifact@main
+        with:
+          name: last_notified
+          path: .
       - name: Run script
         env:
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
           CHANNEL_ID: ${{ secrets.CHANNEL_ID }}
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: python src/script.py
-
       - name: Save last_notified.json
         if: always()
         uses: actions/upload-artifact@main
