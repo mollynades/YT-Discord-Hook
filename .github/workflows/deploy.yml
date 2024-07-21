@@ -23,7 +23,6 @@ jobs:
           pip install -r requirements.txt
 
       - name: Restore last_notified.json
-        continue-on-error: true
         uses: actions/download-artifact@main
         with:
           name: last_notified
