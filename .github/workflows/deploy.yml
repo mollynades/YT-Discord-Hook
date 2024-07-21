@@ -28,3 +28,10 @@ jobs:
           CHANNEL_ID: ${{ secrets.CHANNEL_ID }}
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: python src/script.py
+
+      - name: Save last_notified.json
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: last_notified
+          path: last_notified.json
