@@ -78,7 +78,7 @@ def check_live_streams(last_notified):
     )
     response = request.execute()
 
-    if 'items' in response:
+    if 'items' in response and response['items']:
         stream = response['items'][0]
         stream_id = stream['id']['videoId']
         if is_public_full_video(stream_id):  # Livestreams are not Shorts, but we'll use the same check for consistency
