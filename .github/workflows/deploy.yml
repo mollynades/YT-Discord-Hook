@@ -42,14 +42,14 @@ jobs:
         id: check_file_changed
         run: |
           # Diff HEAD with the previous commit
-          $diff = git diff --name-only HEAD
+          $diff = git diff --name-only HEAD^ HEAD
 
           # Check if a last-notified.json has changed (added, modified, deleted)
           $SourceDiff = $diff | Where-Object last-notified.json
           $HasDiff = $SourceDiff.Length -gt 0
 
           # Set the output named "last_notified_changed"
-          Write-Host "last_notified_changed=$HasDiff" >> $GITHUB_OUTPUT
+          echo "last_notified_changed=$HasDiff" >> $GITHUB_OUTPUT
 
       - name: Push last_notified.json
         if: steps.check_file_changed.outputs.last_notified_changed == 'True'
