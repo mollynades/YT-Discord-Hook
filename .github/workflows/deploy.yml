@@ -32,7 +32,23 @@ jobs:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: python src/script.py
 
+      - name: Check last-notified.json
+        shell: pwsh
+        # Give an id to the step, so we can reference it later
+        id: check_file_changed
+        run: |
+          # Diff HEAD with the previous commit
+          $diff = git diff --name-only HEAD^ HEAD
+
+          # Check if a last-notified.json has changed (added, modified, deleted)
+          $SourceDiff = $diff | Where-Object last-notified.json
+          $HasDiff = $SourceDiff.Length -gt 0
+
+          # Set the output named "last_notified_changed"
+          Write-Host "::set-output name=last_notified_changed::$HasDiff"
+
       - name: Push last_notified.json
+        if: steps.check_file_changed.outputs.last_notified_changed == 'True'
         run: |
           git config --global user.name "${{ secrets.GIT_USERNAME }}"
           git config --global user.email "${{ secrets.GIT_EMAIL }}"
