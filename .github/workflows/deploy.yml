@@ -38,7 +38,7 @@ jobs:
         id: check_file_changed
         run: |
           # Diff HEAD with the previous commit
-          $diff = git diff --name-only HEAD^ HEAD
+          $diff = git diff --name-only HEAD
 
           # Check if a last-notified.json has changed (added, modified, deleted)
           $SourceDiff = $diff | Where-Object last-notified.json
