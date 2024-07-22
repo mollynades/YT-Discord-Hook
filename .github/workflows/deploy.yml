@@ -32,7 +32,7 @@ jobs:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           VIDEO_MESSAGE: ${{ env.VIDEO_MESSAGE || 'New video:' }}
           LIVESTREAM_MESSAGE: ${{ env.LIVESTREAM_MESSAGE || 'Live:' }}
-          LIVESTREAM_PREFIX: ${{ env.LIVESTREAM_PREFIX || '' }
+          LIVESTREAM_PREFIX: ${{ env.LIVESTREAM_PREFIX || '' }}
           EXCLUDE_PREFIX: ${{ env.EXCLUDE_PREFIX || '' }}
         run: python src/script.py
 
