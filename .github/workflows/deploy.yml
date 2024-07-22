@@ -25,11 +25,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Restore last_notified.json
-        uses: actions/download-artifact@main
-        with:
-          name: last_notified
-
       - name: Run script
         env:
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
