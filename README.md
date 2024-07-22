@@ -3,7 +3,7 @@
 ## Introduction
 
 Most of social media automation tools I found out there requires me to pay, regularly, even for a simple Discord message notification using webhooks and API keys I manage, and also still need some coding for very simple two step logics.\
-I wrote this so we don't have to spend 20 bucks a month just to send a message to Discord on a Youtube video we rarely upload as a casual content creator.
+I wrote this so we don't have to spend 20 bucks a month just to send a message to Discord on videos we rarely upload as a casual content creator.
 
 ## Features
 
