@@ -30,10 +30,10 @@ jobs:
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
           CHANNEL_ID: ${{ secrets.CHANNEL_ID }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          VIDEO_MESSAGE: ${{ env.VIDEO_MESSAGE || 'New video:' }}
-          LIVESTREAM_MESSAGE: ${{ env.LIVESTREAM_MESSAGE || 'Live:' }}
-          LIVESTREAM_PREFIX: ${{ env.LIVESTREAM_PREFIX || '' }}
-          EXCLUDE_PREFIX: ${{ env.EXCLUDE_PREFIX || '' }}
+          VIDEO_MESSAGE: ${{ vars.VIDEO_MESSAGE || 'New video:' }}
+          LIVESTREAM_MESSAGE: ${{ vars.LIVESTREAM_MESSAGE || 'Live:' }}
+          LIVESTREAM_PREFIX: ${{ vars.LIVESTREAM_PREFIX || '' }}
+          EXCLUDE_PREFIX: ${{ vars.EXCLUDE_PREFIX || '' }}
         run: python src/script.py
 
       - name: Push last_notified.json
