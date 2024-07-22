@@ -2,8 +2,11 @@ name: YouTube Discord Notify
 
 on:
   schedule:
-    - cron: "*/5 * * * *" # Runs every 5 minutes
+    - cron: "*/10 * * * *" # Runs every 10 minutes
   workflow_dispatch: # Allows manual triggering
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -34,8 +37,10 @@ jobs:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: python src/script.py
 
-      - name: Save last_notified.json
-        uses: actions/upload-artifact@main
-        with:
-          name: last_notified
-          path: last_notified.json
+      - name: Push last_notified.json
+        run: |
+          git config --global user.name "${{ secrets.GIT_USERNAME }}"
+          git config --global user.email "${{ secrets.GIT_EMAIL }}"
+          git add last_notified.json
+          git commit -am "Update last_notified.json"
+          git push
