@@ -8,7 +8,7 @@ youtube = build('youtube', 'v3', developerKey=os.environ['YOUTUBE_API_KEY'])
 
 # Function to send Discord notification
 def send_discord_notification(message):
-    webhook_url = os.environ['DISCORD_WEBHOOK']
+    webhook_url = os.environ['DISCORD_WEBHOOK_URL']
     data = {"content": message}
     requests.post(webhook_url, json=data)
 
@@ -21,7 +21,7 @@ def load_last_notified():
             return data
     except FileNotFoundError:
         print("last_notified.json not found, initializing with default values.")
-        return {"video": None, "livestream": None}
+        return {"last_video_id": None}
 
 # Function to save last notified data
 def save_last_notified(data):
@@ -30,7 +30,7 @@ def save_last_notified(data):
         print("Saved last_notified.json:", data)
 
 # Function to check if a video is public and not a Short
-def is_public_full_video(video_id):
+def is_public_video(video_id):
     try:
         request = youtube.videos().list(
             part="status,snippet",
@@ -40,8 +40,8 @@ def is_public_full_video(video_id):
         if 'items' in response and response['items']:
             item = response['items'][0]
             is_public = item['status']['privacyStatus'] == 'public'
-            is_not_short = item['snippet'].get('description') != '#Shorts'
-            return is_public and is_not_short
+            is_excluded = bool(os.environ['EXCLUDE_PREFIX']) and item['snippet']['description'].startswith(os.environ['EXCLUDE_PREFIX'])
+            return is_public and not is_excluded
     except Exception as e:
         print(f"Error checking video status: {e}")
     return False
@@ -53,7 +53,7 @@ def check_new_videos(last_notified):
         channelId=os.environ['CHANNEL_ID'],
         type="video",
         order="date",
-        maxResults=10  # Check the last 10 videos to find the latest public non-Short
+        maxResults=1  # Check the last one video
     )
     response = request.execute()
 
@@ -62,50 +62,25 @@ def check_new_videos(last_notified):
     if 'items' in response:
         for video in response['items']:
             video_id = video['id']['videoId']
-            if is_public_full_video(video_id):
+            video_description = video['snippet']['description']
+            if is_public_video(video_id):
                 video_title = video['snippet']['title']
                 video_url = f"https://www.youtube.com/watch?v={video_id}"
-
-                if video_id != last_notified['video']:
-                    send_discord_notification(f"@everyone cekidot video baru ges :fire:\n\n{video_title}\n{video_url}")
-                    last_notified['video'] = video_id
+                if video_id != last_notified['last_video_id']:
+                    if bool(os.environ['LIVESTREAM_PREFIX']) and video_description.startswith(os.environ['LIVESTREAM_PREFIX']):
+                        send_discord_notification(f"{os.environ['LIVESTREAM_MESSAGE']}\n\n{video_title}\n{video_url}")
+                    else:
+                        send_discord_notification(f"{os.environ['VIDEO_MESSAGE']}\n\n{video_title}\n{video_url}")
+                    last_notified['last_video_id'] = video_id
                     print(f"Updated last_notified for video: {last_notified}")
                     return True
                 return False  # We found the latest public non-Short video, but it was already notified
-    return False
-
-# Check for public live streams
-def check_live_streams(last_notified):
-    request = youtube.search().list(
-        part="snippet",
-        channelId=os.environ['CHANNEL_ID'],
-        type="video",
-        eventType="live",
-        maxResults=1
-    )
-    response = request.execute()
-
-    print("Response for live streams:", response)
-
-    if 'items' in response and response['items']:
-        stream = response['items'][0]
-        stream_id = stream['id']['videoId']
-        if is_public_full_video(stream_id):  # Livestreams are not Shorts, but we'll use the same check for consistency
-            stream_title = stream['snippet']['title']
-            stream_url = f"https://www.youtube.com/watch?v={stream_id}"
-
-            if stream_id != last_notified['livestream']:
-                send_discord_notification(f"@everyone nonton live ges yak :v\n\n{stream_title}\n{stream_url}")
-                last_notified['livestream'] = stream_id
-                print(f"Updated last_notified for livestream: {last_notified}")
-                return True
     return False
 
 if __name__ == "__main__":
     last_notified = load_last_notified()
     print("Loaded last_notified:", last_notified)
     video_updated = check_new_videos(last_notified)
-    livestream_updated = check_live_streams(last_notified)
-    if video_updated or livestream_updated:
+    if video_updated:
         save_last_notified(last_notified)
         print("Saved last_notified:", last_notified)
