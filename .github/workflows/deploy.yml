@@ -45,7 +45,7 @@ jobs:
           $HasDiff = $SourceDiff.Length -gt 0
 
           # Set the output named "last_notified_changed"
-          Write-Host "::set-output name=last_notified_changed::$HasDiff"
+          Write-Host "last_notified_changed=$HasDiff" >> $GITHUB_OUTPUT
 
       - name: Push last_notified.json
         if: steps.check_file_changed.outputs.last_notified_changed == 'True'
