@@ -1,5 +1,8 @@
 # youtube-discord-notify
 
+- **NEED TO ADJUST THIS IMPLEMENTATION WITH YOUTUBE API DAILY QUOTA**
+- **CHANGED THE CRON TO RUN HOURLY FOR NOW**
+
 ## Introduction
 
 Most of social media automation tools I found out there requires me to pay, regularly, even for a simple Discord message notification using webhooks and API keys I manage, and also still need some coding for very simple two step logics.\
