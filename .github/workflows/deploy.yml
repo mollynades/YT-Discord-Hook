@@ -2,7 +2,7 @@ name: YouTube Discord Notify
 
 on:
   schedule:
-    - cron: "0 * * * *" # Runs hourly for now, need to adjust with API quota
+    - cron: "*/30 * * * *" # Runs every 30 minutes
   workflow_dispatch: # Allows manual triggering
 
 permissions:
