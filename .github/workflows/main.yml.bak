@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   notify:
-    environment: drekunia
+    environment: main
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -35,6 +35,7 @@ jobs:
           LIVESTREAM_MESSAGE: ${{ vars.LIVESTREAM_MESSAGE || 'Live:' }}
           LIVESTREAM_PREFIX: ${{ vars.LIVESTREAM_PREFIX }}
           EXCLUDE_PREFIX: ${{ vars.EXCLUDE_PREFIX }}
+          JSON_FILE: ${{ vars.JSON_FILE || 'last_notified.json' }}
         run: python src/script.py
 
       - name: Push last_notified.json

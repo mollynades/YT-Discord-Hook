@@ -15,7 +15,7 @@ def send_discord_notification(message):
 # Function to load last notified data
 def load_last_notified():
     try:
-        with open('last_notified.json', 'r') as f:
+        with open(os.environ['JSON_FILE'], 'r') as f:
             data = json.load(f)
             print("Loaded last_notified.json:", data)
             return data
@@ -25,7 +25,7 @@ def load_last_notified():
 
 # Function to save last notified data
 def save_last_notified(data):
-    with open('last_notified.json', 'w') as f:
+    with open(os.environ['JSON_FILE'], 'w') as f:
         json.dump(data, f)
         print("Saved last_notified.json:", data)
 

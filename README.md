@@ -15,7 +15,7 @@ I wrote this so we don't have to spend 20 bucks a month just to send a message t
 
 1. Fork this repo
 2. Set the repository secrets in your forked repo settings\
-   (Now I run this with environments, please set your environment name or just delete the config in `.github/workflow/deploy.yml`)
+   (Now I run this with multiple environments, please set config in `.github/workflow/` accordingly)
 
 ```
 CHANNEL_ID // your youtube channel id
@@ -44,7 +44,7 @@ LIVESTREAM_MESSAGE
 ```
 
 4. It's pretty much done. Run `Youtube Discord Notify` workflow in Github Actions, or just wait for about 10 minutes for it to run by itself.\
-   You can set the action interval in `.github/workflow/deploy.yml`
+   You can set the action interval in `.github/workflow/main.yml`
 
 ## Improvements and Contribution
 

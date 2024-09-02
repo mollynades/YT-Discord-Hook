@@ -1,0 +1,48 @@
+name: YouTube Discord Notify
+
+on:
+  schedule:
+    - cron: "0 * * * *" # Runs hourly
+  workflow_dispatch: # Allows manual triggering
+
+permissions:
+  contents: write
+
+jobs:
+  notify:
+    environment: twp
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@main
+
+      - name: Set up Python
+        uses: actions/setup-python@main
+        with:
+          python-version: "3.x"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run script
+        env:
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+          CHANNEL_ID: ${{ secrets.CHANNEL_ID }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          VIDEO_MESSAGE: ${{ vars.VIDEO_MESSAGE || 'New video:' }}
+          LIVESTREAM_MESSAGE: ${{ vars.LIVESTREAM_MESSAGE || 'Live:' }}
+          LIVESTREAM_PREFIX: ${{ vars.LIVESTREAM_PREFIX }}
+          EXCLUDE_PREFIX: ${{ vars.EXCLUDE_PREFIX }}
+          JSON_FILE: ${{ vars.JSON_FILE || 'last_notified.json' }}
+        run: python src/script.py
+
+      - name: Push last_notified.json
+        continue-on-error: true
+        run: |
+          git config --global user.name "${{ secrets.GIT_USERNAME }}"
+          git config --global user.email "${{ secrets.GIT_EMAIL }}"
+          git add last_notified.json
+          git commit -am "Update last_notified.json"
+          git push
