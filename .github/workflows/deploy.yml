@@ -10,6 +10,7 @@ permissions:
 
 jobs:
   notify:
+    environment: drekunia
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
