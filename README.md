@@ -41,10 +41,12 @@ EXCLUDE_PREFIX
 LIVESTREAM_PREFIX
 // message text for videos with LIVESTREAM_PREFIX, defaults to "Live:"
 LIVESTREAM_MESSAGE
+// must have for multiple channels usage, it's the name for the json file for each environment
+JSON_FILE
 ```
 
 4. It's pretty much done. Run `Youtube Discord Notify` workflow in Github Actions, or just wait for about 10 minutes for it to run by itself.\
-   You can set the action interval in `.github/workflow/main.yml`
+   You can set the action interval in the yml file you use in `.github/workflow/`
 
 ## Improvements and Contribution
 
