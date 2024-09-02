@@ -43,7 +43,7 @@ LIVESTREAM_MESSAGE
 ```
 
 4. It's pretty much done. Run `Youtube Discord Notify` workflow in Github Actions, or just wait for about 10 minutes for it to run by itself.\
-   By default it will run every 30 minutes, you can change this in `.github/workflow/deploy.yml`
+   You can set the action interval in `.github/workflow/deploy.yml`
 
 ## Improvements and Contribution
 
