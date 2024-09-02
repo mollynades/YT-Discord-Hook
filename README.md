@@ -14,7 +14,8 @@ I wrote this so we don't have to spend 20 bucks a month just to send a message t
 ## Setup
 
 1. Fork this repo
-2. Set the repository secrets in your forked repo settings
+2. Set the repository secrets in your forked repo settings\
+   (Now I run this with environments, please set your environment name or just delete the config in `.github/workflow/deploy.yml`)
 
 ```
 CHANNEL_ID // your youtube channel id
