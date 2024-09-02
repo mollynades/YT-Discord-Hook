@@ -12,6 +12,8 @@ jobs:
   notify:
     environment: twp
     runs-on: ubuntu-latest
+    env:
+      JSON_FILE: ${{ vars.JSON_FILE || 'last_notified.json' }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@main
@@ -35,7 +37,6 @@ jobs:
           LIVESTREAM_MESSAGE: ${{ vars.LIVESTREAM_MESSAGE || 'Live:' }}
           LIVESTREAM_PREFIX: ${{ vars.LIVESTREAM_PREFIX }}
           EXCLUDE_PREFIX: ${{ vars.EXCLUDE_PREFIX }}
-          JSON_FILE: ${{ vars.JSON_FILE || 'last_notified.json' }}
         run: python src/script.py
 
       - name: Push last_notified.json
@@ -43,6 +44,6 @@ jobs:
         run: |
           git config --global user.name "${{ secrets.GIT_USERNAME }}"
           git config --global user.email "${{ secrets.GIT_EMAIL }}"
-          git add last_notified.json
-          git commit -am "Update last_notified.json"
+          git add $JSON_FILE
+          git commit -am "Update $JSON_FILE"
           git push
