@@ -33,8 +33,8 @@ jobs:
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
           CHANNEL_ID: ${{ secrets.CHANNEL_ID }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          VIDEO_MESSAGE: ${{ vars.VIDEO_MESSAGE || 'New video:' }}
-          LIVESTREAM_MESSAGE: ${{ vars.LIVESTREAM_MESSAGE || 'Live:' }}
+          VIDEO_MESSAGE: ${{ vars.VIDEO_MESSAGE || '## THE VOID REVEALS A GLIMPSE OF THE FUTURE.' }}
+          LIVESTREAM_MESSAGE: ${{ vars.LIVESTREAM_MESSAGE || '## THE VEIL SHIFTS... BEWARE, VOIDWALKER.' }}
           LIVESTREAM_PREFIX: ${{ vars.LIVESTREAM_PREFIX }}
           EXCLUDE_PREFIX: ${{ vars.EXCLUDE_PREFIX }}
         run: python src/script.py
