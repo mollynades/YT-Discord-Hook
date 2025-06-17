@@ -16,7 +16,7 @@ jobs:
         id: check_video
         run: |
           CHANNEL_ID=UCHKW0jcgmONEp7-KQ-0T8IA
-          FEED_URL="https://www.youtube.com/feeds/videos.xml?channel_id=$CHANNEL_ID"
+          FEED_URL="https://www.youtube.com/feeds/videos.xml?channel_id=$UCHKW0jcgmONEp7-KQ-0T8IA"
 
           # 정확한 영상 URL만 추출
           LATEST_URL=$(curl -s "$FEED_URL" | grep -oP '(?<=<entry>).*?(?=</entry>)' | head -n 1 | grep -oP '(?<=<link rel="alternate" href=")[^"]+')
