@@ -3,49 +3,46 @@ name: YouTube to Discord Notifier
 on:
   schedule:
     - cron: '*/10 * * * *'  # 10분마다 실행
-  workflow_dispatch:        # 수동 실행도 가능
+  workflow_dispatch:       # 수동 실행 가능
 
 jobs:
   notify:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Install jq
-        run: sudo apt-get update && sudo apt-get install -y jq
-
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Get previous URL
+      - name: Check latest video
+        id: check_video
         run: |
-          if [ ! -f last_notified.json ]; then
-            echo '{"url": ""}' > last_notified.json
+          CHANNEL_ID=UCHKW0jgcmoNEp7-KQ-0T8IA  # ← 너 유튜브 채널 ID로 바꿔
+          FEED_URL="https://www.youtube.com/feeds/videos.xml?channel_id=UCHKW0jcgmONEp7-KQ-0T8IA"
+          LATEST_URL=$(curl -s "$FEED_URL" | grep -oP '(?<=<link rel="alternate" href=")[^"]+' | head -n 1)
+
+          echo "Latest video URL: $LATEST_URL"
+          
+          if [ -f last_notified.json ]; then
+            LAST_URL=$(cat last_notified.json | jq -r '.url')
+          else
+            LAST_URL=""
           fi
 
-      - name: Check latest video
-        run: |
-          curl -s https://www.youtube.com/feeds/videos.xml?channel_id=UCHKW0jcgmONEp7-KQ-0T8IA \
-            | grep -oP '(?<=<link rel="alternate" href=")[^"]+' \
-            | head -n 1 > latest.txt
-          LATEST_URL=$(cat latest.txt)
-          echo "LATEST_URL=$LATEST_URL" >> $GITHUB_ENV
+          echo "Last notified URL: $LAST_URL"
 
-      - name: Compare and send to Discord
-        run: |
-          OLD_URL=$(cat last_notified.json | jq -r .url)
-          if [ "$OLD_URL" != "$LATEST_URL" ]; then
-            echo "새 영상 발견! 디스코드로 전송"
-            curl -H "Content-Type: application/json" \
-                 -X POST \
-                 -d "{\"content\": \"📢 new video! $LATEST_URL\"}" \
-                 "https://discord.com/api/webhooks/1384370263109533748/tCL76BCnNgVRXO6f92Sj3ObpquQivGSGWWtL_M2rrT87wezoplKiM5OTv758DlUw-vxe"
-
+          if [ "$LATEST_URL" != "$LAST_URL" ]; then
+            echo "New video found!"
             echo "{\"url\": \"$LATEST_URL\"}" > last_notified.json
+            echo "should_notify=true" >> $GITHUB_ENV
+            echo "LATEST_URL=$LATEST_URL" >> $GITHUB_ENV
           else
-            echo "새 영상 아님. 전송 안 함."
+            echo "No new video."
+            echo "should_notify=false" >> $GITHUB_ENV
+          fi
 
-      - name: Save updated URL
-        uses: EndBug/add-and-commit@v9
-        with:
-          message: "🔄 Update latest notified URL"
-          add: "last_notified.json"
+      - name: Send to Discord
+        if: env.should_notify == 'true'
+        run: |
+          curl -H "Content-Type: application/json" \
+            -X POST \
+            -d "{\"content\": \"📢 New lineup!\n${{ env.LATEST_URL }}\"}" \
+            https://discord.com/api/webhooks/1384370263109533748/tCL76BCnNgVRXO6f92Sj3ObpquQivGSGWWtL_M2rrT87wezoplKiM5OTv758DlUw-vxe
