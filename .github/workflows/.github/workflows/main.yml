@@ -1,0 +1,26 @@
+name: YouTube to Discord Notifier
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'  # 10분마다 실행
+  workflow_dispatch:        # 수동 실행도 가능
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Check latest video
+        run: |
+          curl https://www.youtube.com/feeds/videos.xml?channel_id=UCHKW0jcgmONEp7-KQ-0T8IA | grep -oP '(?<=<link rel="alternate" href=")[^"]+' | head -n 1 > latest.txt
+          cat latest.txt
+          echo "LATEST_URL=$(cat latest.txt)" >> $GITHUB_ENV
+
+      - name: Send to Discord
+        run: |
+          curl -H "Content-Type: application/json" \
+               -X POST \
+               -d "{\"content\": \"📢 new lineups! ${{ env.LATEST_URL }}\"}" \
+               "https://discord.com/api/webhooks/1384370263109533748/tCL76BCnNgVRXO6f92Sj3ObpquQivGSGWWtL_M2rrT87wezoplKiM5OTv758DlUw-vxe"
