@@ -3,7 +3,7 @@ name: YouTube to Discord Notifier
 on:
   schedule:
     - cron: '*/10 * * * *'  # 10분마다 실행
-  workflow_dispatch:
+  workflow_dispatch:       # 수동 실행 가능
 
 jobs:
   notify:
@@ -15,14 +15,12 @@ jobs:
       - name: Check latest video
         id: check_video
         run: |
-          CHANNEL_ID=UCHKW0jcgmONEp7-KQ-0T8IA
-          FEED_URL="https://www.youtube.com/feeds/videos.xml?channel_id=UCHKW0jcgmONEp7-KQ-0T8IA"
-
-          # 정확한 영상 URL만 추출
+          CHANNEL_ID=UCHKW0jgcmoNEp7-KQ-0T8IA  # ← 너 유튜브 채널 ID로 바꿔
+          FEED_URL="https://www.youtube.com/feeds/videos.xml?channel_id=$CHANNEL_ID"
           LATEST_URL=$(curl -s "$FEED_URL" | grep -oP '(?<=<entry>).*?(?=</entry>)' | head -n 1 | grep -oP '(?<=<link rel="alternate" href=")[^"]+')
 
           echo "Latest video URL: $LATEST_URL"
-
+          
           if [ -f last_notified.json ]; then
             LAST_URL=$(cat last_notified.json | jq -r '.url')
           else
