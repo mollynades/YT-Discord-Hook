@@ -8,19 +8,44 @@ on:
 jobs:
   notify:
     runs-on: ubuntu-latest
+
     steps:
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Get previous URL
+        run: |
+          if [ ! -f last_notified.json ]; then
+            echo '{"url": ""}' > last_notified.json
+          fi
+
       - name: Check latest video
         run: |
-          curl https://www.youtube.com/feeds/videos.xml?channel_id=UCHKW0jcgmONEp7-KQ-0T8IA | grep -oP '(?<=<link rel="alternate" href=")[^"]+' | head -n 1 > latest.txt
-          cat latest.txt
-          echo "LATEST_URL=$(cat latest.txt)" >> $GITHUB_ENV
+          curl -s https://www.youtube.com/feeds/videos.xml?channel_id=UCHKW0jcgmONEp7-KQ-0T8IA \
+            | grep -oP '(?<=<link rel="alternate" href=")[^"]+' \
+            | head -n 1 > latest.txt
+          LATEST_URL=$(cat latest.txt)
+          echo "LATEST_URL=$LATEST_URL" >> $GITHUB_ENV
 
-      - name: Send to Discord
+      - name: Compare and send to Discord
         run: |
-          curl -H "Content-Type: application/json" \
-               -X POST \
-               -d "{\"content\": \"📢 new lineups! ${{ env.LATEST_URL }}\"}" \
-               "https://discord.com/api/webhooks/1384370263109533748/tCL76BCnNgVRXO6f92Sj3ObpquQivGSGWWtL_M2rrT87wezoplKiM5OTv758DlUw-vxe"
+          OLD_URL=$(cat last_notified.json | jq -r .url)
+          if [ "$OLD_URL" != "$LATEST_URL" ]; then
+            echo "새 영상 발견! 디스코드로 전송"
+            curl -H "Content-Type: application/json" \
+                 -X POST \
+                 -d "{\"content\": \"📢 new video! $LATEST_URL\"}" \
+                 "https://discord.com/api/webhooks/1384370263109533748/tCL76BCnNgVRXO6f92Sj3ObpquQivGSGWWtL_M2rrT87wezoplKiM5OTv758DlUw-vxe"
+
+            echo "{\"url\": \"$LATEST_URL\"}" > last_notified.json
+          else
+            echo "새 영상 아님. 전송 안 함."
+
+      - name: Save updated URL
+        uses: EndBug/add-and-commit@v9
+        with:
+          message: "🔄 Update latest notified URL"
+          add: "last_notified.json"
