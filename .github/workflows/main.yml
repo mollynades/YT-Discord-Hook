@@ -12,33 +12,31 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-     - name: Check latest video
-         id: check_video
+      - name: Check latest video
+        id: check_video
         run: |
-             CHANNEL_ID=UCHKW0jgcmoNEp7-KQ-0T8IA
-             FEED_URL="https://www.youtube.com/feeds/videos.xml?channel_id=$CHANNEL_ID"
-             LATEST_URL=$(curl -s "$FEED_URL" | sed -n 's:.*<link rel="alternate" href="\([^"]*\)".*:\1:p' | head -n 1)
+          CHANNEL_ID=UCHKW0jgcmoNEp7-KQ-0T8IA  # ← 너 유튜브 채널 ID
+          FEED_URL="https://www.youtube.com/feeds/videos.xml?channel_id=$CHANNEL_ID"
+          LATEST_URL=$(curl -s "$FEED_URL" | sed -n 's:.*<link rel="alternate" href="\([^"]*\)".*:\1:p' | head -n 1)
 
-             echo "Latest video URL: $LATEST_URL"
+          echo "Latest video URL: $LATEST_URL"
 
-             if [ -f last_notified.json ]; then
-             LAST_URL=$(cat last_notified.json | jq -r '.url')
-             else
-             LAST_URL=""
-             fi
+          if [ -f last_notified.json ]; then
+            LAST_URL=$(cat last_notified.json | jq -r '.url')
+          else
+            LAST_URL=""
+          fi
 
-             echo "Last notified URL: $LAST_URL"
+          echo "Last notified URL: $LAST_URL"
 
-             if [ "$LATEST_URL" != "$LAST_URL" ]; then
-             echo "New video found!"
-             echo "{\"url\": \"$LATEST_URL\"}" > last_notified.json
-             echo "should_notify=true" >> $GITHUB_ENV
-             echo "LATEST_URL=$LATEST_URL" >> $GITHUB_ENV
-             else
-             echo "No new video."
-             echo "should_notify=false" >> $GITHUB_ENV
-             fi
-
+          if [ "$LATEST_URL" != "$LAST_URL" ]; then
+            echo "New video found!"
+            echo "{\"url\": \"$LATEST_URL\"}" > last_notified.json
+            echo "should_notify=true" >> $GITHUB_ENV
+            echo "LATEST_URL=$LATEST_URL" >> $GITHUB_ENV
+          else
+            echo "No new video."
+            echo "should_notify=false" >> $GITHUB_ENV
 
       - name: Send to Discord
         if: env.should_notify == 'true'
@@ -49,6 +47,7 @@ jobs:
             https://discord.com/api/webhooks/1384370263109533748/tCL76BCnNgVRXO6f92Sj3ObpquQivGSGWWtL_M2rrT87wezoplKiM5OTv758DlUw-vxe
 
       - name: Save latest URL
+        if: env.should_notify == 'true'
         uses: EndBug/add-and-commit@v9
         with:
           message: "update last_notified.json"
