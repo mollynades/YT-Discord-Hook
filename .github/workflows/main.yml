@@ -1,54 +1,69 @@
-name: YouTube to Discord Notifier
+name: YouTube → Discord Notifier
 
 on:
   schedule:
-    - cron: '*/10 * * * *'  # 10분마다 실행
-  workflow_dispatch:        # 수동 실행 가능
+    - cron: '*/10 * * * *'   # 10분마다
+  workflow_dispatch:         # 클릭해서 수동 실행도 가능
 
 jobs:
   notify:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+      # 1) 저장소 체크아웃
+      - uses: actions/checkout@v2
 
+      # 2) jq 설치(간단 JSON 파싱용)
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      # 3) 최신 영상 가져오기 + 이전 URL 비교
       - name: Check latest video
-        id: check_video
+        id: get_video
         run: |
-          CHANNEL_ID=UCHKW0jgcmoNEp7-KQ-0T8IA  # ← 너 유튜브 채널 ID
+          CHANNEL_ID="UCHKW0jcgmONEp7-KQ-0T8IA"
           FEED_URL="https://www.youtube.com/feeds/videos.xml?channel_id=$CHANNEL_ID"
-          LATEST_URL=$(curl -s "$FEED_URL" | sed -n 's:.*<link rel="alternate" href="\([^"]*\)".*:\1:p' | head -n 1)
 
-          echo "Latest video URL: $LATEST_URL"
+          # RSS에서 첫 번째 <entry> 블록의 video URL 뽑기
+          LATEST_URL=$(curl -s "$FEED_URL" \
+            | sed -n 's:.*<link rel="alternate" href="\([^"]*\)".*:\1:p' \
+            | head -n 1)
 
+          # 없으면 스크립트 중단
+          if [ -z "$LATEST_URL" ]; then
+            echo "❌ 영상 URL 추출 실패"; exit 1
+          fi
+
+          # 이전 전송 기록 확인
           if [ -f last_notified.json ]; then
-            LAST_URL=$(cat last_notified.json | jq -r '.url')
+            LAST_URL=$(jq -r '.url' last_notified.json)
           else
             LAST_URL=""
           fi
 
-          echo "Last notified URL: $LAST_URL"
+          echo "LATEST_URL=$LATEST_URL" >> "$GITHUB_ENV"
+          echo "LAST_URL=$LAST_URL"     >> "$GITHUB_ENV"
 
+          # 새 영상이면 플래그 세팅
           if [ "$LATEST_URL" != "$LAST_URL" ]; then
-            echo "New video found!"
-            echo "{\"url\": \"$LATEST_URL\"}" > last_notified.json
-            echo "should_notify=true" >> $GITHUB_ENV
-            echo "LATEST_URL=$LATEST_URL" >> $GITHUB_ENV
+            echo "should_notify=true"  >> "$GITHUB_ENV"
           else
-            echo "No new video."
-            echo "should_notify=false" >> $GITHUB_ENV
+            echo "should_notify=false" >> "$GITHUB_ENV"
+          fi
 
+      # 4) 새 영상일 때만 디스코드 전송
       - name: Send to Discord
         if: env.should_notify == 'true'
         run: |
           curl -H "Content-Type: application/json" \
-            -X POST \
-            -d "{\"content\": \"📢 New lineup!\n${{ env.LATEST_URL }}\"}" \
-            https://discord.com/api/webhooks/1384370263109533748/tCL76BCnNgVRXO6f92Sj3ObpquQivGSGWWtL_M2rrT87wezoplKiM5OTv758DlUw-vxe
+               -X POST \
+               -d "{\"content\": \"📢 New video uploaded!\n${{ env.LATEST_URL }}\"}" \
+               "https://discord.com/api/webhooks/1384370263109533748/tCL76BCnNgVRXO6f92Sj3ObpquQivGSGWWtL_M2rrT87wezoplKiM5OTv758DlUw-vxe"
 
-      - name: Save latest URL
+      # 5) 전송했으면 URL 기록 갱신 & 커밋
+      - name: Save last URL
         if: env.should_notify == 'true'
         uses: EndBug/add-and-commit@v9
         with:
-          message: "update last_notified.json"
+          message: "🔄 Update last_notified.json"
           add: "last_notified.json"
+          default_author: github_actions
