@@ -2,8 +2,8 @@ name: YouTube to Discord Notifier
 
 on:
   schedule:
-    - cron: '*/10 * * * *'  
-  workflow_dispatch:    
+    - cron: '*/10 * * * *'  # 10분마다 실행
+  workflow_dispatch:        # 수동 실행 가능
 
 jobs:
   notify:
@@ -12,15 +12,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-     - name: Check latest video
-         id: check_video
+      - name: Check latest video
+        id: check_video
         run: |
-             CHANNEL_ID=UCHKW0jgcmoNEp7-KQ-0T8IA
-             FEED_URL="https://www.youtube.com/feeds/videos.xml?channel_id=$CHANNEL_ID"
-             LATEST_URL=$(curl -s "$FEED_URL" | grep -oP '(?<=<entry>).*?(?=</entry>)' | head -n 1 | grep -oP '(?<=<link rel="alternate" href=")[^"]+')
-    
+          CHANNEL_ID=UCHKW0jgcmoNEp7-KQ-0T8IA
+          FEED_URL="https://www.youtube.com/feeds/videos.xml?channel_id=$CHANNEL_ID"
+          LATEST_URL=$(curl -s "$FEED_URL" | grep -oP '(?<=<entry>).*?(?=</entry>)' | head -n 1 | grep -oP '(?<=<link rel="alternate" href=")[^"]+')
+
           echo "Latest video URL: $LATEST_URL"
-          
+
           if [ -f last_notified.json ]; then
             LAST_URL=$(cat last_notified.json | jq -r '.url')
           else
@@ -37,7 +37,6 @@ jobs:
           else
             echo "No new video."
             echo "should_notify=false" >> $GITHUB_ENV
-          fi
 
       - name: Send to Discord
         if: env.should_notify == 'true'
@@ -46,3 +45,9 @@ jobs:
             -X POST \
             -d "{\"content\": \"📢 New lineup!\n${{ env.LATEST_URL }}\"}" \
             https://discord.com/api/webhooks/1384370263109533748/tCL76BCnNgVRXO6f92Sj3ObpquQivGSGWWtL_M2rrT87wezoplKiM5OTv758DlUw-vxe
+
+      - name: Save latest URL
+        uses: EndBug/add-and-commit@v9
+        with:
+          message: "update last_notified.json"
+          add: "last_notified.json"
