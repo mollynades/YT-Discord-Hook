@@ -21,20 +21,20 @@ jobs:
       - name: Get latest video
         id: get_video
         run: |
-          # ---- 설정 ----
+        # ---- 설정 ----
           CHANNEL_ID="UCHKW0jcgmONEp7-KQ-0T8IA"
           FEED_URL="https://www.youtube.com/feeds/videos.xml?channel_id=$CHANNEL_ID"
           DISCORD_WEBHOOK="https://discord.com/api/webhooks/1384370263109533748/tCL76BCnNgVRXO6f92Sj3ObpquQivGSGWWtL_M2rrT87wezoplKiM5OTv758DlUw-vxe"
-          # ---------------
+        # ---------------
 
-          # RSS에서 첫 번째 <yt:videoId> 값만 추출 → 영상 URL 생성
+        # RSS에서 첫 번째 <yt:videoId> 값만 추출 → 영상 URL 생성
           VIDEO_ID=$(curl -s "$FEED_URL" | grep -m1 -oP '(?<=<yt:videoId>)[^<]+')
           if [ -z "$VIDEO_ID" ]; then
             echo "❌  영상 ID 추출 실패"; exit 1
           fi
           LATEST_URL="https://www.youtube.com/watch?v=$VIDEO_ID"
 
-          # 이전에 보낸 URL 읽기
+        # 이전에 보낸 URL 읽기
           if [ -f last_notified.json ]; then
             LAST_URL=$(jq -r '.url' last_notified.json)
           else
