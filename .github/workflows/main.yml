@@ -10,31 +10,31 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1) 저장소 체크아웃
+           # 1) 저장소 체크아웃
       - uses: actions/checkout@v3
 
-      # 2) jq 설치 (JSON 파싱용)
+             # 2) jq 설치 (JSON 파싱용)
       - name: Install jq
         run: sudo apt-get update && sudo apt-get install -y jq
 
-      # 3) 최신 영상 URL 추출 & 이전 URL 비교
+           # 3) 최신 영상 URL 추출 & 이전 URL 비교
       - name: Get latest video
         id: get_video
         run: |
-        # ---- 설정 ----
+         # ---- 설정 ----
           CHANNEL_ID="UCHKW0jcgmONEp7-KQ-0T8IA"
           FEED_URL="https://www.youtube.com/feeds/videos.xml?channel_id=$CHANNEL_ID"
           DISCORD_WEBHOOK="https://discord.com/api/webhooks/1384370263109533748/tCL76BCnNgVRXO6f92Sj3ObpquQivGSGWWtL_M2rrT87wezoplKiM5OTv758DlUw-vxe"
-        # ---------------
+         # ---------------
 
-        # RSS에서 첫 번째 <yt:videoId> 값만 추출 → 영상 URL 생성
+         # RSS에서 첫 번째 <yt:videoId> 값만 추출 → 영상 URL 생성
           VIDEO_ID=$(curl -s "$FEED_URL" | grep -m1 -oP '(?<=<yt:videoId>)[^<]+')
           if [ -z "$VIDEO_ID" ]; then
             echo "❌  영상 ID 추출 실패"; exit 1
           fi
           LATEST_URL="https://www.youtube.com/watch?v=$VIDEO_ID"
 
-        # 이전에 보낸 URL 읽기
+         # 이전에 보낸 URL 읽기
           if [ -f last_notified.json ]; then
             LAST_URL=$(jq -r '.url' last_notified.json)
           else
@@ -50,7 +50,7 @@ jobs:
             echo "should_notify=false" >> $GITHUB_ENV
           fi
 
-      # 4) 새 영상일 때만 디스코드 전송
+         # 4) 새 영상일 때만 디스코드 전송
       - name: Send to Discord
         if: env.should_notify == 'true'
         run: |
@@ -60,7 +60,7 @@ jobs:
                -d "{\"content\": \"📢  New video uploaded!\n${{ env.LATEST_URL }}\"}" \
                "$DISCORD_WEBHOOK"
 
-      # 5) URL 갱신 후 커밋
+         # 5) URL 갱신 후 커밋
       - name: Save latest URL
         if: env.should_notify == 'true'
         uses: EndBug/add-and-commit@v9
