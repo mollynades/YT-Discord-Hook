@@ -21,7 +21,7 @@ jobs:
       - name: Get latest video
         id: get_video
         run: |
-        # ---- 설정 ----
+          # ---- 설정 ----
           CHANNEL_ID="UCHKW0jcgmONEp7-KQ-0T8IA"
           FEED_URL="https://www.youtube.com/feeds/videos.xml?channel_id=$CHANNEL_ID"
           DISCORD_WEBHOOK="https://discord.com/api/webhooks/1384370263109533748/tCL76BCnNgVRXO6f92Sj3ObpquQivGSGWWtL_M2rrT87wezoplKiM5OTv758DlUw-vxe"
