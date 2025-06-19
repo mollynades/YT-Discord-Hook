@@ -12,13 +12,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Check latest video
-        id: check_video
+     - name: Check latest video
+         id: check_video
         run: |
-          CHANNEL_ID=UCHKW0jgcmoNEp7-KQ-0T8IA  # ← 너 유튜브 채널 ID로 바꿔
-          FEED_URL="https://www.youtube.com/feeds/videos.xml?channel_id=$UCHKW0jgcmoNEp7-KQ-0T8IA"
-          LATEST_URL=$(curl -s "$FEED_URL" | grep -oP '(?<=<entry>).*?(?=</entry>)' | head -n 1 | grep -oP '(?<=<link rel="alternate" href=")[^"]+')
-
+             CHANNEL_ID=UCHKW0jgcmoNEp7-KQ-0T8IA  # ← 너 유튜브 채널 ID
+             FEED_URL="https://www.youtube.com/feeds/videos.xml?channel_id=$CHANNEL_ID"
+             LATEST_URL=$(curl -s "$FEED_URL" | grep -oP '(?<=<entry>).*?(?=</entry>)' | head -n 1 | grep -oP '(?<=<link rel="alternate" href=")[^"]+')
+    
           echo "Latest video URL: $LATEST_URL"
           
           if [ -f last_notified.json ]; then
